@@ -5,13 +5,7 @@ let canvasCtx = canvas.getContext("2d");
 let gameHeight = canvasHeight - 100
 let gameWidth = canvasWidth
 let isRunning = false
-let startingGridSize = 5
-
-let grid = new Array(startingGridSize)
-//grid[x][y]
-for (i = 0; i < grid.length; i++) {
-    grid[i] = new Array(startingGridSize).fill(0)
-}
+let startingGridSize = 11
 
 let menuButtons = [
     {
@@ -46,45 +40,42 @@ function sleep(ms) {
 }
 
 async function game(newGame) {
+    let grid = new Array(startingGridSize)
+    //grid[x][y]
+    for (i = 0; i < grid.length; i++) {
+        grid[i] = new Array(startingGridSize).fill(0)
+    }
     while (true) {
         await sleep(250)
         //TODO: Function to generate a random start
 
         if (newGame) {
-            grid[2][1] = 1
-            grid[2][2] = 1
-            grid[2][3] = 1
-            grid[1][3] = 1
-            grid[0][1] = 1
-            drawGrid()
+            grid[6][5] = 1
+            grid[5][6] = 1
+            grid[4][5] = 1
+            grid[5][4] = 1
+            drawGrid(grid)
         }
 
 
         while (isRunning) {
             await sleep(250)
             //Sleep for x milliseconds, slows down the game for visualization and resource consumption
-            console.log('\n\n\n\n\n')
             
             //TODO: Make algorithm to randomly pick starting points
             //grid[Math.floor(Math.random() * grid.length)][Math.floor(Math.random() * grid[0].length)] = 1
 
-            console.log('iterating Grid')
-            grid = iterateGrid(grid)
-            drawGrid()
-            console.log(grid)
-            
-            //TODO: Fix this, it doesnt work correctly.
+            grid = iterateGrid(grid)            
             grid = checkOuterGrid(grid)
             
-            console.log(grid)
-            console.log('Drawing grid')
-            drawGrid()
+            drawGrid(grid)
             newGame = false
         }
     }
 }
 
 function checkOuterGrid(tempGrid) {
+    //TODO: Clean this up
     let leftBoundEmpty = true
     let rightBoundEmpty = true
     let topBoundEmpty = true
@@ -121,18 +112,9 @@ function checkOuterGrid(tempGrid) {
             }
         }
     }
-    console.log('LBE = ', leftBoundEmpty)
-    console.log('RBE = ', rightBoundEmpty)
-    console.log('TBE = ', topBoundEmpty)
-    console.log('BBE = ', bottomBoundEmpty)
-    console.log('L2BE = ', leftBound2Empty)
-    console.log('R2BE = ', rightBound2Empty)
-    console.log('T2BE = ', topBound2Empty)
-    console.log('B2BE = ', bottomBound2Empty)
+    //TODO: Clean this up
     if (leftBoundEmpty && rightBoundEmpty && topBoundEmpty && bottomBoundEmpty && leftBound2Empty && rightBound2Empty && topBound2Empty && bottomBound2Empty)
     {
-        console.log('Contracting Grid')
-        
         for (let j = 0; j < tempGrid.length; j++) {
             tempGrid[j].shift();
             tempGrid[j].pop();
@@ -142,7 +124,6 @@ function checkOuterGrid(tempGrid) {
     }
     else if (!(leftBoundEmpty && rightBoundEmpty && topBoundEmpty && bottomBoundEmpty))
     {
-        console.log('Expanding Grid')
         for (let j = 0; j < tempGrid.length; j++) {
             tempGrid[j].push(0);
         }
@@ -217,25 +198,20 @@ function iterateGrid(oldGrid) {
     return newGrid
 }
 
-function drawGrid() {
+function drawGrid(grid) {
     for (i = 0; i < grid.length; i++) {
         for (k = 0; k < grid[i].length; k++) {
+            canvasCtx.beginPath();
+            canvasCtx.rect(i * (gameWidth / grid.length), (k * (gameHeight / grid[0].length)) + 100, gameWidth / grid.length, gameHeight / grid[0].length);
             if (grid[i][k] == 0) {
-                canvasCtx.beginPath();
-                canvasCtx.rect(i * (gameWidth / grid.length), (k * (gameHeight / grid[0].length)) + 100, gameWidth / grid.length, gameHeight / grid[0].length);
                 canvasCtx.fillStyle = '#000000'
-                canvasCtx.fill();
-                canvasCtx.stroke();
-                canvasCtx.closePath();
             }
             else if (grid[i][k] == 1) {
-                canvasCtx.beginPath();
-                canvasCtx.rect(i * (gameWidth / grid.length), (k * (gameHeight / grid[0].length)) + 100, gameWidth / grid.length, gameHeight / grid[0].length);
-                canvasCtx.fillStyle = '#FFFFFF'
-                canvasCtx.fill();
-                canvasCtx.stroke();
-                canvasCtx.closePath();
+                canvasCtx.fillStyle = '#FFFFFF' 
             }
+            canvasCtx.fill();
+            canvasCtx.stroke();
+            canvasCtx.closePath();
         }
     }
 }
@@ -281,7 +257,7 @@ function createButton(menuButton) {
 function drawMenu() {
     clearCanvas()
 
-    removeListener(); //Might be able to delete this
+    removeListener(); //TODO: Might be able to delete this
 
     canvas.addEventListener('click', listener);
 
